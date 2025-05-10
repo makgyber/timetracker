@@ -21,6 +21,7 @@ class AuthService {
 
   Future<String?> getToken(String email, String password) async {
     String url = "https://topbestsystems.com/api/sanctum/token";
+    debugPrint(url);
     try {
       final Response response = await post(Uri.parse(url), body: {
         "email": email,
@@ -29,11 +30,12 @@ class AuthService {
       });
       debugPrint(response.body);
       if (response.statusCode == 200 || response.statusCode == 400) {
-        return json.decode(response.body);
+        return Token.fromJson(json.decode(response.body)).token;
       } else {
-        return null;
+        return "";
       }
     } catch(e) {
+      debugPrint(e.toString());
       return null;
     }
   }

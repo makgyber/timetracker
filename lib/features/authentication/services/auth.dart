@@ -4,16 +4,14 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:timetracker/features/authentication/models/authenticated_user.dart';
-import 'package:timetracker/features/authentication/models/token.dart';
-import 'package:timetracker/features/authentication/models/user.dart';
-import 'package:timetracker/features/authentication/services/auth_service.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:timetracker/features/authentication/services/user_service.dart';
 import 'package:timetracker/repository/database.dart';
 
 class UserAuth extends ChangeNotifier {
   bool _signedIn = false;
   List<AuthenticatedUser> _users = [];
   final DatabaseService _databaseService = DatabaseService();
+  final UserService _userService = UserService();
 
   UserAuth() {
     _init();
@@ -30,26 +28,15 @@ class UserAuth extends ChangeNotifier {
 
   /// Signs out the current user.
   Future<void> signOut() async {
-    debugPrint(_users.first.id.toString());
-    await _databaseService.deleteAuthenticatedUser(_users.first.id);
-    _users = await _databaseService.authenticatedUser();
-    _signedIn = _users.isNotEmpty;
+    await _userService.logOut();
+    _signedIn = false;
     notifyListeners();
   }
 
   /// Signs in a user.
-  Future<bool> signIn(String username, String password) async {
-
-    final AuthenticatedUser _authUser = AuthenticatedUser(id:1, name: "my name", email: "email", token: "");
-
-    await _databaseService.insertAuthenticatedUser(_authUser);
-
-    var users = await _databaseService.authenticatedUser();
-
-    _signedIn = users.isNotEmpty;
-
+  Future<bool> signIn(String email, String password) async {
+    _signedIn = await _userService.logIn(email, password);
     notifyListeners();
-    debugPrint(_signedIn.toString());
     return _signedIn;
   }
 }

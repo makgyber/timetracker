@@ -57,7 +57,7 @@ class DatabaseService {
   }
 
   // A method that deletes a breed data from the breeds table.
-  Future<void> deleteAuthenticatedUser(int id) async {
+  Future<void> deleteAuthenticatedUserById(int id) async {
     // Get a reference to the database.
     final db = await _databaseService.database;
 
@@ -69,6 +69,13 @@ class DatabaseService {
       // Pass the Breed's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
     );
+  }
+
+  Future<void> deleteAllAuthenticatedUsers() async {
+    // Get a reference to the database.
+    final db = await _databaseService.database;
+    // Remove the Breed from the database.
+    await db.delete('authenticated_users');
   }
 
 }

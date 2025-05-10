@@ -26,4 +26,8 @@ class AuthenticatedUser {
       token: map['token'].toString()
     );
   }
+
+  String toString() {
+    return "AuthenticatedUser{$id, $name, $email, $token}";
+  }
 }
