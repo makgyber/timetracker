@@ -10,20 +10,49 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  DateTime? visitDate;
+
+  Future<void> _selectDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+        context: context,
+        firstDate: DateTime.now().subtract(Duration(days: 30)),
+        lastDate: DateTime.now()
+    );
+
+    setState(() {
+      visitDate = pickedDate;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        alignment: Alignment.center,
-          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: ElevatedButton(
-            child: const Text('Log out'),
-            onPressed: () {
-              debugPrint('logout clicked');
-              UserAuthScope.of(context)
-                  .signOut();
-            },
-          )),
+      appBar: AppBar(
+        title: Text(visitDate != null
+            ? 'Job orders from ${visitDate!.year}/${visitDate!.month}/${visitDate!.day}'
+            : 'Job orders today',),
+        elevation: 2,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.green,
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.date_range_outlined),
+              onPressed: _selectDate),
+          IconButton(icon: Icon(Icons.exit_to_app),
+              onPressed: () {
+                UserAuthScope.of(context)
+                    .signOut();
+              })
+        ],
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 20,
+        children: [
+
+        ],
+      )
     );
   }
 }
+
+
