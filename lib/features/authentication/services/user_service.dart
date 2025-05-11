@@ -17,7 +17,7 @@ class UserService {
       return false;
     }
 
-    AuthenticatedUser? user  = await authService.getUser(_token!);
+    AuthenticatedUser? user  = await authService.getUser(_token);
     if (user == null) {
       return false;
     }

@@ -1,6 +1,9 @@
 import 'package:timetracker/features/authentication/models/authenticated_user.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:timetracker/features/job_orders/models/address.dart';
+import 'package:timetracker/features/job_orders/models/customer.dart';
+import 'package:timetracker/features/job_orders/models/job_order.dart';
 
 class DatabaseService {
   // Singleton pattern
@@ -22,16 +25,49 @@ class DatabaseService {
     return await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 1,
+      version: 2,
       onConfigure: (db) async => await db.execute('PRAGMA foreign_keys = ON'),
     );
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    // Run the CREATE {breeds} TABLE statement on the database.
     await db.execute(
       'CREATE TABLE authenticated_users(id INTEGER PRIMARY KEY, name TEXT, email TEXT, token TEXT)',
     );
+    await db.execute(
+      'CREATE TABLE addresses('
+          'id INTEGER PRIMARY KEY, '
+          'region TEXT, '
+          'province TEXT, '
+          'city TEXT, '
+          'barangay TEXT,'
+          'street TEXT,'
+          'longitude TEXT,'
+          'latitude TEXT'
+          ')',
+    );
+    await db.execute(
+      'CREATE TABLE customers('
+          'id INTEGER PRIMARY KEY, '
+          'name TEXT, '
+          'classification TEXT'
+      ')',
+    );
+    await db.execute(
+      'CREATE TABLE job_orders('
+          'id INTEGER PRIMARY KEY, '
+          'code TEXT, '
+          'summary TEXT, '
+          'target_date TEXT, '
+          'job_order_type TEXT,'
+          'status TEXT,'
+          'client_id INTEGER,'
+          'address_id INTEGER,'
+          'FOREIGN KEY(client_id) REFERENCES customers(id),'
+          'FOREIGN KEY(address_id) REFERENCES addresses(id)'
+          ')'
+    );
+
   }
 
   // Define a function that inserts breeds into the database
@@ -76,6 +112,47 @@ class DatabaseService {
     final db = await _databaseService.database;
     // Remove the Breed from the database.
     await db.delete('authenticated_users');
+  }
+
+
+  Future<List<JobOrder>> jobOrders() async {
+    final db = await _databaseService.database;
+
+    // Query the table for all the Breeds.
+    final List<Map<String, dynamic>> maps = await db.query('job_orders');
+
+    return List.generate(maps.length, (index) => JobOrder.fromJson(maps[index]));
+  }
+
+  Future<int> insertJobOrder(JobOrder jobOrder) async {
+    final db = await _databaseService.database;
+    var jsonVal = jobOrder.toJson();
+    jsonVal.remove('client');
+    jsonVal.remove('address');
+    return await db.insert(
+      'job_orders',
+      jsonVal,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+
+  Future<int> insertCustomer(Customer customer) async {
+    final db = await _databaseService.database;
+    return await db.insert(
+      'customers',
+      customer.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<int> insertAddress(Address address) async {
+    final db = await _databaseService.database;
+    return await db.insert(
+      'addresses',
+      address.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
 }

@@ -13,12 +13,6 @@ class AuthService {
 
   bool get isLoggedIn => _isLoggedIn;
 
-  Future<AuthenticatedUser?> login(String email, String password) async {
-
-    return  await getUser("33|qdz9s2kwiMmgus6ZlYR3EoICRj0pN0ahm81qYEppeef22399").then((onValue)=>onValue);
-
-  }
-
   Future<String?> getToken(String email, String password) async {
     String url = "https://topbestsystems.com/api/sanctum/token";
     debugPrint(url);
